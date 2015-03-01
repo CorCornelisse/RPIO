@@ -529,6 +529,7 @@ PyMODINIT_FUNC init_GPIO(void)
         gpio_to_pin = &gpio_to_pin_rev2;
         break;
     case 3:
+    case 4: // MARCO Pi2
         pin_to_gpio = &pin_to_gpio_rev3;
         gpio_to_pin = &gpio_to_pin_rev3;
         break;

@@ -27,6 +27,8 @@
 #include "cpuinfo.h"
 
 // Writes the hex revision str into the argument and returns:
+//   4  MARCO: raspberry2
+//   3  Pi+
 //   2  (raspberry with revision 2 pin setup)
 //   1  (raspberry with revision 1 pin setup)
 //   0  (not a raspberry pi)
@@ -49,8 +51,12 @@ get_cpuinfo_revision(char *revision_hex)
     while(!feof(fp)) {
         fgets(buffer, sizeof(buffer) , fp);
         sscanf(buffer, "Hardware	: %s", hardware);
-        if (strcmp(hardware, "BCM2708") == 0)
-            rpi_found = 1;
+        if (strcmp(hardware, "BCM2708") == 0) {
+             rpi_found = 1;
+        } else if (strcmp(hardware, "BCM2709") == 0) {
+            rpi_found = 4;
+        }
+
         sscanf(buffer, "Revision	: %s", revision_hex);
     }
     fclose(fp);
@@ -67,7 +73,10 @@ get_cpuinfo_revision(char *revision_hex)
     }
 
     // Returns revision
-    if ((strcmp(revision_hex, "0002") == 0) ||
+    if (rpi_found == 4) {
+        // MARCO Pi2
+        return rpi_found;
+    } else if ((strcmp(revision_hex, "0002") == 0) ||
         (strcmp(revision_hex, "0003") == 0)) {
         return 1;
     } else if ((strcmp(revision_hex, "0010") == 0)) {
