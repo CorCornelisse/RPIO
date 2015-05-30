@@ -31,9 +31,14 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include "c_gpio.h"
+#include "cpuinfo.h"
 
 #define BCM2708_PERI_BASE   0x20000000
-#define GPIO_BASE           (BCM2708_PERI_BASE + 0x200000)
+#define BCM2709_PERI_BASE   0x3f000000
+int rpi_revision = 0;
+#define GPIO_BASE           (rpi_revision < 4 ? \
+        (BCM2708_PERI_BASE + 0x200000) : \
+        (BCM2709_PERI_BASE + 0x200000))
 #define OFFSET_FSEL         0   // 0x0000
 #define OFFSET_SET          7   // 0x001c / 4
 #define OFFSET_CLR          10  // 0x0028 / 4
@@ -69,6 +74,9 @@ setup(void)
 {
     int mem_fd;
     uint8_t *gpio_mem;
+    char dummy[1024];
+
+    rpi_revision = get_cpuinfo_revision(dummy);
 
     if ((mem_fd = open("/dev/mem", O_RDWR|O_SYNC) ) < 0)
         return SETUP_DEVMEM_FAIL;
